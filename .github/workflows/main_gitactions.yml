@@ -20,16 +20,15 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
-          distribution: 'adopt'
 
       - name: Build with Maven
-        run: mvn clean install -f GitActions/pom.xml
+        run: mvn clean install
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
-          name: GitActions
-          path: '${{ github.workspace }}
+          name: java-app
+          path: '${{ github.workspace }}/target/*.war'
 
   deploy:
     runs-on: ubuntu-latest
@@ -37,18 +36,18 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
-          name: GitActions
-      
+          name: java-app
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'GitActions'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5066116F8C824005BA205DDABB2E0AA6 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F69E6837B842402AA9F44DD830E78AB7 }}
           package: '*.war'
